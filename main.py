@@ -1,16 +1,17 @@
+import os
 import numpy as np
 from PIL import Image
 
+DIRECTORY_PATH = os.path.dirname(os.path.realpath(__file__))
 
-def encode(src, message, dest):
+def encode(src, message):
     """
-    :param src: source path of the image file
+    :param src: source name of the image file
     :param message: message to be encrypted
-    :param dest: destination of encrypted file
     :return: none
     """
     # opening the image for reading
-    img = Image.open(src, 'r')
+    img = Image.open(DIRECTORY_PATH + "/images/" + src, 'r')
     width, height = img.size
     data_arr = np.array(list(img.getdata()))
     # checking mode of img if its RGB or RGBA
@@ -46,7 +47,7 @@ def encode(src, message, dest):
         en_data = data_arr.reshape(height, width, n)
         # creating new image from en_data
         en_img = Image.fromarray(en_data.astype('uint8'), mode=img.mode)
-        en_img.save(dest)
+        en_img.save(DIRECTORY_PATH+"/steganographed_img/"+src)
         print("Image Encoded Successfully")
 
 
@@ -56,7 +57,7 @@ def decode(src):
     :return: decrypted message
     """
     # opening the image for reading
-    img = Image.open(src, 'r')
+    img = Image.open(DIRECTORY_PATH + "/images/" + src, 'r')
     data_arr = np.array(list(img.getdata()))
     # checking mode of img if its RGB or RGBA
     # n is the no. of bytes in a pixel
@@ -99,10 +100,9 @@ def main():
                            "3.Exit"
                            "\nEnter your choice: "))
 
-        src = input("Enter name or path of the source file: ")
+        src = input("Enter name of the source file: ")
         if choice == 1:
             message = input("Enter message to be hidden in image: ")
-            dest = input("Enter name or path of the new file: ")
             encode(src, message, dest)
         elif choice == 2:
             decode(src)
