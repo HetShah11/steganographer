@@ -1,13 +1,14 @@
 import numpy as np
 from PIL import Image
 
+
 def encode(src, message, dest):
-    '''
+    """
     :param src: source path of the image file
     :param message: message to be encrypted
     :param dest: destination of encrypted file
     :return: none
-    '''
+    """
     # opening the image for reading
     img = Image.open(src, 'r')
     width, height = img.size
@@ -48,14 +49,14 @@ def encode(src, message, dest):
         en_img.save(dest)
         print("Image Encoded Successfully")
 
-def Decode(src):
-    '''
+
+def decode(src):
+    """
     :param src: source path of file to be decrypted
     :return: decrypted message
-    '''
+    """
     # opening the image for reading
     img = Image.open(src, 'r')
-    width, height = img.size
     data_arr = np.array(list(img.getdata()))
     # checking mode of img if its RGB or RGBA
     # n is the no. of bytes in a pixel
@@ -87,3 +88,23 @@ def Decode(src):
         print("Successfully Decrypted \nThe Message is - ", message[:-5])
     else:
         print("No Hidden Message Found")
+
+
+def main():
+    while True:
+        choice = int(input("Welcome to Steganographer\n"
+                           "MENU\n"
+                           "1.Encode message in image\n"
+                           "2.Decode image\n"
+                           "3.Exit"
+                           "\nEnter your choice: "))
+
+        src = input("Enter name or path of the source file: ")
+        if choice == 1:
+            message = input("Enter message to be hidden in image: ")
+            dest = input("Enter name or path of the new file: ")
+            encode(src, message, dest)
+        elif choice == 2:
+            decode(src)
+        else:
+            break
