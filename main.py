@@ -30,7 +30,7 @@ def encode(src, message):
     req_pixels = len(b_message)
 
     # checking the required pixels are available or not
-    if req_pixels < total_pixels:
+    if req_pixels > total_pixels:
         print("Error message cannot be steganographed due to size constraints!")
         return
     else:
@@ -41,13 +41,12 @@ def encode(src, message):
             for byte in range(3):
                 if req_pixels > index:
                     # editing the last bit with b_message
-                    data_arr[pix][byte] = int(bin(data_arr[pix][byte])[2:9] + b_message[index], 2)
+                    data_arr[pix][byte] = int(bin(data_arr[pix][byte])[2:-1] + b_message[index], 2)
                     index += 1
         # reshaping the new data
         en_data = data_arr.reshape(height, width, n)
         # creating new image from en_data
-        en_img = Image.fromarray(en_data.astype('uint8'), mode=img.mode)
-        en_img.save(DIRECTORY_PATH+"/steganographed_img/"+src)
+        en_img = Image.fromarray(en_data.astype('uint8'), mode=img.mode).save(DIRECTORY_PATH+"/steganographed_img/"+src)
         print("Image Encoded Successfully")
 
 
@@ -57,7 +56,7 @@ def decode(src):
     :return: decrypted message
     """
     # opening the image for reading
-    img = Image.open(DIRECTORY_PATH + "/images/" + src, 'r')
+    img = Image.open(DIRECTORY_PATH + "/steganographed_img/" + src, 'r')
     data_arr = np.array(list(img.getdata()))
     # checking mode of img if its RGB or RGBA
     # n is the no. of bytes in a pixel
@@ -69,30 +68,35 @@ def decode(src):
     total_pixels = len(data_arr) // n
 
     message = ""
-    b_message = []
+    hidden_bits = ""
     # iterating over the image pixels
     for pix in range(total_pixels):
         # iterating over the color bytes (R, G, B) of each pixel
         for byte in range(3):
-            b_message.append(bin(data_arr[pix][byte])[2:][-1])
+            hidden_bits += (bin(data_arr[pix][byte])[2:][-1])
+            # b_message.append(bin(data_arr[pix][byte])[-1])
 
     # making groups of 8
-    b_message = [b_message[i:i + 8] for i in range(0, len(b_message), 8)]
+    hidden_bits = [hidden_bits[i:i + 8] for i in range(0, len(hidden_bits), 8)]
+    # b_message = [b_message[i:i + 8] for i in range(0, len(b_message), 8)]
     # converting it into ASCII again
-    for i in range(len(b_message)):
+    for i in range(len(hidden_bits)):
         if message[-5:] == "$t3g0":
             break
         else:
-            message += chr(int(b_message[i], 2))
+            message += chr(int(hidden_bits[i], 2))
+            # message += chr(int(''.join(b_message[i]), 2))
     # checking the presence of delimiter
+    print("\n##################\n")
     if "$t3g0" in message:
-        print("Successfully Decrypted \nThe Message is - ", message[:-5])
+        print("\tSuccessfully Decrypted \n\tThe Message is - ", message[:-5])
     else:
-        print("No Hidden Message Found")
+        print("\tNo Hidden Message Found")
 
 
 def main():
     while True:
+        print("\n#################################")
         choice = int(input("Welcome to Steganographer\n"
                            "MENU\n"
                            "1.Encode message in image\n"
@@ -100,15 +104,16 @@ def main():
                            "3.Exit"
                            "\nEnter your choice: "))
 
-        src = input("Enter name of the source file: ")
+
         if choice == 1:
-            message = input("Enter message to be hidden in image: ")
-            encode(src, message, dest)
+            src = input("\n\tEnter name of the source file: ")
+            message = input("\tEnter message to be hidden in image: ")
+            encode(src, message)
         elif choice == 2:
+            src = input("\n\tEnter name of the source file: ")
             decode(src)
         else:
-            break
-
+            return
 
 if __name__ == "__main__":
     main()
