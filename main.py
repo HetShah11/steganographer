@@ -1,6 +1,7 @@
 import os
 import numpy as np
 from PIL import Image
+import matplotlib.pyplot as plt
 
 DIRECTORY_PATH = os.path.dirname(os.path.realpath(__file__))
 
@@ -46,7 +47,9 @@ def encode(src, message):
         # reshaping the new data
         en_data = data_arr.reshape(height, width, n)
         # creating new image from en_data
-        en_img = Image.fromarray(en_data.astype('uint8'), mode=img.mode).save(DIRECTORY_PATH+"/steganographed_img/"+src)
+        plt.imsave(DIRECTORY_PATH+"/steganographed_img/"+src, en_data.astype('uint8'))
+
+        # en_img = Image.fromarray(en_data).save(DIRECTORY_PATH+"/steganographed_img/"+src)
         print("Image Encoded Successfully")
 
 
